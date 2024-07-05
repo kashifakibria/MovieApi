@@ -71,6 +71,27 @@ React Components                     Redux                          API
 | +---------------------+   |        |                           |
 |                           |        |                           |
 +---------------------------+        +---------------------------+
+
+Explanation:
+
+MovieList component mounts and subscribes to the movies state in Redux.
+Initial render shows an empty list as the initial state has no movies.
+useEffect dispatches a FETCH_MOVIES action.
+Redux receives the action and the thunk middleware initiates an API call.
+The API processes the request and sends back the response with two movies.
+Redux receives the response and dispatches a MOVIES_LOADED action with the movie data.
+The reducer processes this action, updating the state with the two movies and changing the status to 'succeeded'.
+Redux notifies subscribers (our MovieList component) of the state change.
+The MovieList component detects the state change via useSelector.
+The component re-renders, now displaying the two movies (Inception and The Matrix).
+The DOM is updated to show these two movies to the user.
+
+This process demonstrates how the component, Redux, and the API work in parallel:
+
+The component can render initially and wait for data without blocking.
+Redux manages the state and handles the asynchronous API call.
+The API processes the request independently.
+Once data is received, it flows through Redux to the component, triggering a re-render with the new movie data.
 ```
 
 Tutorial: Fetching Movies from TMDB API with React and Redux Toolkit
