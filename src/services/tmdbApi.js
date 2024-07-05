@@ -1,24 +1,16 @@
-// src/services/tmdbApi.js
 import axios from "axios";
-import { TMDB_API_KEY, TMDB_BASE_URL } from "../tmdbConfig";
 
-const tmdbApi = axios.create({
-  baseURL: TMDB_BASE_URL,
-  params: {
-    api_key: TMDB_API_KEY,
-  },
-});
+const BASE_URL = "https://api.themoviedb.org/3";
+const API_KEY = "";
 
-export const getMovies = async (type = "popular", page = 1) => {
+export const fetchPopularMovies = async () => {
   try {
-    const response = await tmdbApi.get(`/movie/${type}`, {
-      params: { page },
-    });
-    return response.data;
+    const response = await axios.get(
+      `${BASE_URL}/movie/popular?api_key=${API_KEY}`
+    );
+    return response.data.results;
   } catch (error) {
-    console.error("Error fetching movies:", error);
-    return null;
+    console.error("Error fetching popular movies:", error);
+    return [];
   }
 };
-
-export default tmdbApi;
