@@ -1,25 +1,40 @@
-// src/components/MovieList.js
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMovies } from "../store/moviesSlice";
-import { Grid, Card, CardMedia, CardContent, Typography } from "@mui/material";
+import { getPopularMovies } from "../store/moviesSlice";
+import {
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 
 const MovieList = () => {
   const dispatch = useDispatch();
-  const { list: movies, status, error } = useSelector((state) => state.movies);
+  const { popularMovies, status, error } = useSelector((state) => state.movies);
 
   useEffect(() => {
     if (status === "idle") {
-      dispatch(fetchMovies({ type: "popular", page: 1 }));
+      dispatch(getPopularMovies());
     }
   }, [status, dispatch]);
 
-  if (status === "loading") return <div>Loading...</div>;
-  if (status === "failed") return <div>Error: {error}</div>;
+  if (status === "loading") {
+    return <CircularProgress />;
+  }
+
+  if (status === "failed") {
+    return <Typography color="error">Error: {error}</Typography>;
+  }
+
+  if (!popularMovies || popularMovies.length === 0) {
+    return <Typography>No movies found.</Typography>;
+  }
 
   return (
     <Grid container spacing={3}>
-      {movies.map((movie) => (
+      {popularMovies.map((movie) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
           <Card>
             <CardMedia
@@ -33,7 +48,7 @@ const MovieList = () => {
                 {movie.title}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {movie.release_date}
+                Release Date: {movie.release_date}
               </Typography>
             </CardContent>
           </Card>

@@ -1,33 +1,31 @@
-// src/store/moviesSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getMovies } from "../services/tmdbApi";
+import { fetchPopularMovies } from "../services/tmdbApi";
 
-export const fetchMovies = createAsyncThunk(
-  "movies/fetchMovies",
-  async ({ type, page }, thunkAPI) => {
-    const response = await getMovies(type, page);
-    return response.results;
+export const getPopularMovies = createAsyncThunk(
+  "movies/getPopular",
+  async () => {
+    return await fetchPopularMovies();
   }
 );
 
 const moviesSlice = createSlice({
   name: "movies",
   initialState: {
-    list: [],
+    popularMovies: [],
     status: "idle",
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMovies.pending, (state) => {
+      .addCase(getPopularMovies.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchMovies.fulfilled, (state, action) => {
+      .addCase(getPopularMovies.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.list = action.payload;
+        state.popularMovies = action.payload;
       })
-      .addCase(fetchMovies.rejected, (state, action) => {
+      .addCase(getPopularMovies.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
