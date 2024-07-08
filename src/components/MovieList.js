@@ -35,7 +35,7 @@ const MovieList = () => {
   return (
     <Grid container spacing={3}>
       {popularMovies.map((movie) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
+        <Grid item xs={12} sm={6} md={4} lg={2} key={movie.id}>
           <Card>
             <CardMedia
               component="img"

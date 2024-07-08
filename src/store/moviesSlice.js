@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchPopularMovies } from "../services/tmdbApi";
 
 export const getPopularMovies = createAsyncThunk(
-  "movies/getPopular",
+  "movies/getPopularMovies",
   async () => {
     return await fetchPopularMovies();
   }
