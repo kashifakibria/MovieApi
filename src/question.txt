@@ -1,0 +1,18 @@
+What function from Redux Toolkit is used to create the store, and what is its main purpose?
+configureStore is used. 
+
+In the store configuration, what does the 'reducer' key represent?
+reducer represents 
+
+If we have counter: counterReducer in the store configuration, how would you access the counter state in a component using useSelector?
+What is the purpose of the createSlice function, and what are its main parameters?
+In a slice created with createSlice, what's the difference between reducers and extraReducers?
+What is an async thunk, and how is it created?
+How does useEffect in the Counter component relate to the Redux state and actions?
+If you dispatch an action created by createSlice, do you need to manually write a case for it in extraReducers?
+What are the three possible status values we're using in our counter state, and what do they represent?
+If you wanted to add a new piece of state, let's say 'user', how would you modify the store configuration?
+In the component, what's the difference between using useSelector and useDispatch?
+How does changing the name of the slice in the store configuration (e.g., from 'counter' to 'zzzzz') affect the rest of your application?
+
+Please think about your answers to these questions. I'll provide the correct answers in my next response so you can cross-check your understanding. CopyRetryClaude can make mistakes. Please double-check responses.

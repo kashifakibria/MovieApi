@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Simulated API call
-const fetchCount = (amount = 1) => {
+const fetchCount = (amount = 2) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (Math.random() < 0.5) {
-        // 80% success rate
+        // 50% success rate
         resolve({ data: amount });
       } else {
         reject(new Error("Failed to fetch count"));

@@ -10,12 +10,12 @@ export function Counter() {
 
   useEffect(() => {
     if (status === "idle") {
-      dispatch(fetchCountAsync(5));
+      dispatch(fetchCountAsync());
     }
   }, [status, dispatch]);
 
   const handleFetchClick = () => {
-    dispatch(fetchCountAsync(1));
+    dispatch(fetchCountAsync(5));
   };
 
   let content;

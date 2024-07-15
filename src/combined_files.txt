@@ -416,6 +416,24 @@ test('renders learn react link', () => {
 });
 
 import React from "react";
+import { Provider } from "react-redux";
+import { store } from "./store/apistore";
+import { Counter } from "./components/Counter";
+
+function App() {
+  return (
+    <Provider store={store}>
+      <div className="App">
+        <h1>Redux Counter App</h1>
+        <Counter />
+      </div>
+    </Provider>
+  );
+}
+
+export default App;
+
+import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import InputBase from "@mui/material/InputBase";
@@ -838,6 +856,698 @@ Now, let's break down what's happening in this implementation:
 This implementation provides a solid foundation for fetching and displaying movies from the TMDB API. It handles loading and error states, and uses Material-UI components for styling. You can expand on this by adding more features like pagination, searching, or displaying movie details.
 
 
+1. First, let's create the auth slice (authSlice.js):
+
+```javascript
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Simulated API call
+const loginAPI = async (credentials) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (
+        credentials.username === "user" &&
+        credentials.password === "password"
+      ) {
+        resolve({ id: 1, name: "John Doe", username: "user" });
+      } else {
+        reject("Invalid credentials");
+      }
+    }, 1000);
+  });
+};
+
+export const login = createAsyncThunk(
+  "auth/login",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const user = await loginAPI(credentials);
+      return user;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState: {
+    user: null,
+    status: "idle",
+    error: null,
+  },
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      state.status = "idle";
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(login.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
+  },
+});
+
+export const { logout } = authSlice.actions;
+export default authSlice.reducer;
+```
+
+2. Next, let's set up the Redux store (store.js):
+
+```javascript
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./authSlice";
+
+export const store = configureStore({
+  reducer: {
+    auth: authReducer,
+  },
+});
+```
+
+3. Now, let's create a Login component (Login.js):
+
+```javascript
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "./authSlice";
+
+const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const { status, error } = useSelector((state) => state.auth);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(login({ username, password }));
+  };
+
+  if (status === "loading") {
+    return <div>Logging in...</div>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <button type="submit">Login</button>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+    </form>
+  );
+};
+
+export default Login;
+```
+
+4. Let's create a UserInfo component to display user information and logout button (UserInfo.js):
+
+```javascript
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "./authSlice";
+
+const UserInfo = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  if (!user) return null;
+
+  return (
+    <div>
+      <h2>Welcome, {user.name}!</h2>
+      <p>Username: {user.username}</p>
+      <button onClick={() => dispatch(logout())}>Logout</button>
+    </div>
+  );
+};
+
+export default UserInfo;
+```
+
+5. Finally, let's create the main App component (App.js):
+
+```javascript
+import React from "react";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import Login from "./Login";
+import UserInfo from "./UserInfo";
+
+function App() {
+  return (
+    <Provider store={store}>
+      <div className="App">
+        <h1>Redux Login Example</h1>
+        <Login />
+        <UserInfo />
+      </div>
+    </Provider>
+  );
+}
+
+export default App;
+```
+
+This implementation provides a complete login/logout functionality using Redux:
+
+- The `authSlice` manages the authentication state, including the async login process and synchronous logout.
+- The `Login` component allows users to input credentials and dispatches the login action.
+- The `UserInfo` component displays user information when logged in and provides a logout button.
+- The `App` component brings everything together and provides the Redux store to the entire application.
+
+To test this:
+
+1. Run the app and you'll see the login form.
+2. Enter username "user" and password "password" to log in successfully.
+3. You'll see the user information displayed and a logout button.
+4. Click the logout button to log out.
+5. Try incorrect credentials to see error handling in action.
+
+This example demonstrates how to manage authentication state in Redux, handle async operations with createAsyncThunk, and connect React components to the Redux store using hooks like useSelector and useDispatch.
+
+1. Initial Render:
+
+When the MovieList component first renders:
+
+```javascript
+const MovieList = () => {
+  const dispatch = useDispatch();
+  const { popularMovies, status, error } = useSelector((state) => state.movies);
+
+  // ... rest of the component
+};
+```
+
+- `useDispatch` hook: This hook connects to the Redux store and returns the `dispatch` function. It doesn't cause any re-renders.
+
+- `useSelector` hook: This hook runs and selects the current state from the Redux store. Initially, it might look like:
+  ```javascript
+  {
+    popularMovies: [],
+    status: 'idle',
+    error: null
+  }
+  ```
+
+2. useEffect Hook:
+
+```javascript
+useEffect(() => {
+  if (status === "idle") {
+    dispatch(getPopularMovies());
+  }
+}, [status, dispatch]);
+```
+
+- This hook runs after the initial render.
+- It sees that `status` is 'idle', so it dispatches the `getPopularMovies` action.
+
+3. Redux Thunk Middleware:
+
+- The `getPopularMovies` thunk is executed.
+- It immediately dispatches a pending action: `getPopularMovies.pending`
+
+4. Redux Reducer:
+
+- The pending action is handled in the moviesSlice:
+  ```javascript
+  .addCase(getPopularMovies.pending, (state) => {
+    state.status = 'loading';
+  })
+  ```
+- The state is updated: `status` changes from 'idle' to 'loading'.
+
+5. React Re-render:
+
+- The `useSelector` hook detects this state change and causes a re-render of MovieList.
+- This time, when the component renders, it hits this condition:
+  ```javascript
+  if (status === "loading") {
+    return <CircularProgress />;
+  }
+  ```
+- A loading spinner is displayed to the user.
+
+6. API Call Completes:
+
+- The thunk's API call completes, returning data for two movies.
+- The thunk dispatches a fulfilled action: `getPopularMovies.fulfilled`, with the movie data as payload.
+
+7. Redux Reducer Again:
+
+- The fulfilled action is handled:
+  ```javascript
+  .addCase(getPopularMovies.fulfilled, (state, action) => {
+    state.status = 'succeeded';
+    state.popularMovies = action.payload;
+  })
+  ```
+- The state is updated: `status` becomes 'succeeded', and `popularMovies` is set to the array of two movies.
+
+8. Another React Re-render:
+
+- `useSelector` detects this state change and triggers another re-render.
+- This time, the component skips the loading and error conditions and renders the movie grid:
+  ```javascript
+  return (
+    <Grid container spacing={3}>
+      {popularMovies.map((movie) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
+          <Card>{/* ... card contents ... */}</Card>
+        </Grid>
+      ))}
+    </Grid>
+  );
+  ```
+- Two movie cards are rendered, one for each movie returned by the API.
+
+9. Completion:
+
+- The component is now displaying the two movies, and the `status` in Redux is 'succeeded'.
+- If the user navigates away and comes back, the `useEffect` hook won't dispatch a new action because the status is no longer 'idle'.
+
+This process demonstrates how React hooks (`useEffect`, `useSelector`, `useDispatch`) work in tandem with Redux to manage state, handle asynchronous operations, and keep the UI in sync with the data state. The component efficiently re-renders only when necessary, showing appropriate loading states and finally the desired content.
+
+Certainly! I'll create a text diagram to illustrate the flow of data and state changes in this React-Redux application. Let's follow the process step-by-step:
+
+```
+React Components                     Redux                          API
++---------------------------+        +---------------------------+  +------------------+
+|                           |        |                           |  |                  |
+| MovieList Mounts          |        | Store Initialization      |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+| | useSelector         |   |        | | Initial State:      |   |  |                  |
+| | (Subscribe to       |<----------->| | movies: [],        |   |  |                  |
+| |  movies state)      |   |        | | status: 'idle'      |   |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+|           |               |        |                           |  |                  |
+|           v               |        |                           |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+| | Initial Render      |   |        | | Wait for Actions    |   |  |                  |
+| | (Empty movie list)  |   |        | +---------------------+   |  |                  |
+| +---------------------+   |        |           ^               |  |                  |
+|           |               |        |           |               |  |                  |
+|           v               |        | +---------------------+   |  |                  |
+| +---------------------+   |        | | Action Received     |   |  |                  |
+| | useEffect           |   |        | | (FETCH_MOVIES)      |   |  |                  |
+| | (Dispatch           |---------->|| +---------------------+   |  |                  |
+| |  FETCH_MOVIES)      |   |        |           |               |  |                  |
+| +---------------------+   |        |           v               |  |                  |
+|           |               |        | +---------------------+   |  |                  |
+|        (wait)             |        | | Thunk Middleware    |   |  |                  |
+|           |               |        | | Initiates API Call  |------------->| GET /movies   |
+|           |               |        | +---------------------+   |  |                  |
+|           |               |        |           |               |  |        |         |
+|           |               |        |        (wait)             |  |        v         |
+|           |               |        |           |               |  | Process Request  |
+|           |               |        |           v               |  |        |         |
+|           |               |        | +---------------------+   |  |        v         |
+|           |               |        | | Receive API Response|<----------| Send Response |
+|           |               |        | +---------------------+   |  |                  |
+|           |               |        |           |               |  +------------------+
+|           |               |        |           v               |
+|           |               |        | +---------------------+   |
+|           |               |        | | Reducer Processes   |   |
+|           |               |        | | MOVIES_LOADED Action|   |
+|           |               |        | +---------------------+   |
+|           |               |        |           |               |
+|           |               |        |           v               |
+|           |               |        | +---------------------+   |
+|           |               |        | | State Updated:      |   |
+|           |               |        | | movies: [           |   |
+|           |               |        | |   {id:1, title:     |   |
+|           |               |        | |   "Inception",...}, |   |
+|           |               |        | |   {id:2, title:     |   |
+|           |               |        | |   "The Matrix",...} |   |
+|           |               |        | | ],                  |   |
+|           |               |        | | status: 'succeeded' |   |
+|           |               |        | +---------------------+   |
+|           |               |        |           |               |
+|           v               |        |           v               |
+| +---------------------+   |        | +---------------------+   |
+| | State Change        |<-----------| | Notify Subscribers  |   |
+| | Detected            |   |        | +---------------------+   |
+| +---------------------+   |        |                           |
+|           |               |        |                           |
+|           v               |        |                           |
+| +---------------------+   |        |                           |
+| | Re-render           |   |        |                           |
+| | (Show 2 movies)     |   |        |                           |
+| +---------------------+   |        |                           |
+|           |               |        |                           |
+|           v               |        |                           |
+| +---------------------+   |        |                           |
+| | Update DOM          |   |        |                           |
+| | (Display Inception  |   |        |                           |
+| |  and The Matrix)    |   |        |                           |
+| +---------------------+   |        |                           |
+|                           |        |                           |
++---------------------------+        +---------------------------+
+```
+
+Explanation:
+
+1. MovieList component mounts and subscribes to the movies state in Redux.
+2. Initial render shows an empty list as the initial state has no movies.
+3. useEffect dispatches a FETCH_MOVIES action.
+4. Redux receives the action and the thunk middleware initiates an API call.
+5. The API processes the request and sends back the response with two movies.
+6. Redux receives the response and dispatches a MOVIES_LOADED action with the movie data.
+7. The reducer processes this action, updating the state with the two movies and changing the status to 'succeeded'.
+8. Redux notifies subscribers (our MovieList component) of the state change.
+9. The MovieList component detects the state change via useSelector.
+10. The component re-renders, now displaying the two movies (Inception and The Matrix).
+11. The DOM is updated to show these two movies to the user.
+
+This process demonstrates how the component, Redux, and the API work in parallel:
+
+- The component can render initially and wait for data without blocking.
+- Redux manages the state and handles the asynchronous API call.
+- The API processes the request independently.
+- Once data is received, it flows through Redux to the component, triggering a re-render with the new movie data.
+
+###########################
+
+You're right, it's helpful to include the file information. I'll update the text diagram to show where each part of the code is defined. Here's the revised version:
+
+```
+React Components                     Redux                          API
++---------------------------+        +---------------------------+  +------------------+
+| (src/components/          |        | (src/store/store.js,      |  | (src/services/   |
+|  MovieList.js)            |        |  src/store/moviesSlice.js)|  |  tmdbApi.js)     |
+|                           |        |                           |  |                  |
+| MovieList Mounts          |        | Store Initialization      |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+| | useSelector         |   |        | | Initial State:      |   |  |                  |
+| | (Subscribe to       |<----------->| | movies: [],        |   |  |                  |
+| |  movies state)      |   |        | | status: 'idle'      |   |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+|           |               |        |                           |  |                  |
+|           v               |        |                           |  |                  |
+| +---------------------+   |        | +---------------------+   |  |                  |
+| | Initial Render      |   |        | | Wait for Actions    |   |  |                  |
+| | (Empty movie list)  |   |        | +---------------------+   |  |                  |
+| +---------------------+   |        |           ^               |  |                  |
+|           |               |        |           |               |  |                  |
+|           v               |        | +---------------------+   |  |                  |
+| +---------------------+   |        | | Action Received     |   |  |                  |
+| | useEffect           |   |        | | (FETCH_MOVIES)      |   |  |                  |
+| | (Dispatch           |---------->|| +---------------------+   |  |                  |
+| |  FETCH_MOVIES)      |   |        |           |               |  |                  |
+| +---------------------+   |        |           v               |  |                  |
+|           |               |        | +---------------------+   |  |                  |
+|        (wait)             |        | | Thunk Middleware    |   |  |                  |
+|           |               |        | | Initiates API Call  |------------->| GET /movies   |
+|           |               |        | +---------------------+   |  |                  |
+|           |               |        |           |               |  |        |         |
+|           |               |        |        (wait)             |  |        v         |
+|           |               |        |           |               |  | Process Request  |
+|           |               |        |           v               |  |        |         |
+|           |               |        | +---------------------+   |  |        v         |
+|           |               |        | | Receive API Response|<----------| Send Response |
+|           |               |        | +---------------------+   |  |                  |
+|           |               |        |           |               |  +------------------+
+|           |               |        |           v               |
+|           |               |        | +---------------------+   |
+|           |               |        | | Reducer Processes   |   |
+|           |               |        | | MOVIES_LOADED Action|   |
+|           |               |        | +---------------------+   |
+|           |               |        |           |               |
+|           |               |        |           v               |
+|           |               |        | +---------------------+   |
+|           |               |        | | State Updated:      |   |
+|           |               |        | | movies: [           |   |
+|           |               |        | |   {id:1, title:     |   |
+|           |               |        | |   "Inception",...}, |   |
+|           |               |        | |   {id:2, title:     |   |
+|           |               |        | |   "The Matrix",...} |   |
+|           |               |        | | ],                  |   |
+|           |               |        | | status: 'succeeded' |   |
+|           |               |        | +---------------------+   |
+|           |               |        |           |               |
+|           v               |        |           v               |
+| +---------------------+   |        | +---------------------+   |
+| | State Change        |<-----------| | Notify Subscribers  |   |
+| | Detected            |   |        | +---------------------+   |
+| +---------------------+   |        |                           |
+|           |               |        |                           |
+|           v               |        |                           |
+| +---------------------+   |        |                           |
+| | Re-render           |   |        |                           |
+| | (Show 2 movies)     |   |        |                           |
+| +---------------------+   |        |                           |
+|           |               |        |                           |
+|           v               |        |                           |
+| +---------------------+   |        |                           |
+| | Update DOM          |   |        |                           |
+| | (Display Inception  |   |        |                           |
+| |  and The Matrix)    |   |        |                           |
+| +---------------------+   |        |                           |
+|                           |        |                           |
++---------------------------+        +---------------------------+
+
+App Component (src/App.js):
+Wraps everything with Redux Provider and renders MovieList
+```
+
+File Breakdown:
+
+1. `src/components/MovieList.js`: Contains the MovieList component, useEffect hook, and rendering logic.
+2. `src/store/store.js`: Configures the Redux store.
+3. `src/store/moviesSlice.js`: Defines the movies slice with initial state, reducers, and async thunk.
+4. `src/services/tmdbApi.js`: Contains the API call function to fetch movies.
+5. `src/App.js`: The main App component that provides the Redux store and renders MovieList.
+
+This diagram now shows where each part of the code is defined, making it easier to understand the file structure and responsibilities in the application.
+
+Exactly! You've captured the flow perfectly. Let's break it down step-by-step to reinforce your understanding:
+
+1. App.js and Counter Component:
+
+   ```
+   App.js
+     |
+     +-- Counter Component
+   ```
+
+2. Counter Component Hooks:
+
+   ```
+   Counter Component
+     |
+     +-- useEffect
+     |
+     +-- useDispatch (Redux)
+     |
+     +-- useSelector (Redux)
+   ```
+
+3. Initial State Check and Dispatch:
+
+   ```
+   useEffect
+     |
+     +-- Check state (idle?)
+         |
+         +-- If idle: useDispatch activates
+             |
+             +-- Sends action to Redux
+   ```
+
+4. Redux State Management:
+
+   ```
+   Redux Store
+     |
+     +-- Receives dispatched action
+         |
+         +-- Triggers API call (thunk)
+         |
+         +-- API responds
+         |
+         +-- Extra reducers update state based on response
+   ```
+
+5. Component Update:
+   ```
+   useSelector
+     |
+     +-- Watches for state changes
+         |
+         +-- Triggers re-render based on new state
+             |
+             +-- Component displays appropriate UI based on status
+   ```
+
+This flow demonstrates the core principles of React-Redux integration:
+
+1. Separation of Concerns: The component focuses on display and user interaction, while Redux manages state.
+2. Unidirectional Data Flow: Actions are dispatched to Redux, state is updated, and components react to these changes.
+3. Centralized State Management: All state changes go through Redux, making it easier to track and manage application state.
+
+########
+
+1. Q: What function from Redux Toolkit is used to create the store, and what is its main purpose?
+   A: The `configureStore` function is used to create the store. Its main purpose is to simplify the store setup process, automatically combining reducers, adding middleware, and setting up the Redux DevTools extension.
+
+2. Q: In the store configuration, what does the 'reducer' key represent?
+   A: The 'reducer' key in the store configuration represents the root reducer for the entire Redux store. It combines all the individual reducers for different slices of state.
+
+3. Q: If we have `counter: counterReducer` in the store configuration, how would you access the counter state in a component using useSelector?
+   A: `const counterState = useSelector(state => state.counter);`
+
+4. Q: What is the purpose of the `createSlice` function, and what are its main parameters?
+   A: `createSlice` is used to create a slice of Redux state. Its main parameters are:
+
+   - name: A string name for the slice
+   - initialState: The initial state value
+   - reducers: An object of reducer functions
+   - extraReducers: A builder callback for additional reducers (often used with async actions)
+
+5. Q: In a slice created with `createSlice`, what's the difference between `reducers` and `extraReducers`?
+   A: `reducers` are for synchronous actions and automatically generate action creators. `extraReducers` are for handling actions defined elsewhere (like async thunks) and don't generate action creators.
+
+6. Q: What is an async thunk, and how is it created?
+   A: An async thunk is a function that handles asynchronous logic in Redux. It's created using `createAsyncThunk`, which takes an action type string and a payload creator function that returns a promise.
+
+7. Q: How does `useEffect` in the Counter component relate to the Redux state and actions?
+   A: The `useEffect` in the Counter component checks the status of the Redux state and dispatches the initial fetch action if the status is 'idle'.
+
+8. Q: If you dispatch an action created by `createSlice`, do you need to manually write a case for it in `extraReducers`?
+   A: No, you don't need to manually write cases in `extraReducers` for actions created by `createSlice`. These are handled automatically in the `reducers` section.
+
+9. Q: What are the possible status values we're using in our state, and what do they represent?
+   A: The status values are:
+
+   - 'idle': Initial state, no fetch has been attempted
+   - 'loading': A fetch is in progress
+   - 'succeeded': The fetch was successful
+   - 'failed': The fetch failed
+
+10. Q: If you wanted to add a new piece of state, let's say 'user', how would you modify the store configuration?
+    A:
+
+    ```javascript
+    export const store = configureStore({
+      reducer: {
+        counter: counterReducer,
+        user: userReducer,
+      },
+    });
+    ```
+
+11. Q: In the component, what's the difference between using `useSelector` and `useDispatch`?
+    A: `useSelector` is used to select and read data from the Redux store state. `useDispatch` returns the dispatch function, which is used to dispatch actions to the store.
+
+12. Q: How would you add a new user reducer to the existing store configuration?
+    A:
+
+    ```javascript
+    import userReducer from "./userSlice";
+
+    export const store = configureStore({
+      reducer: {
+        counter: counterReducer,
+        user: userReducer,
+      },
+    });
+    ```
+
+13. Q: In a component, how would you dispatch the fetchUser action, and what argument would it take?
+    A:
+
+    ```javascript
+    const dispatch = useDispatch();
+    dispatch(fetchUser(userId));
+    ```
+
+    It takes a userId as an argument.
+
+14. Q: How does the logout action in the userSlice differ from the fetchUser action in terms of how it's defined and used?
+    A: The logout action is a synchronous action defined in the `reducers` section of the slice, while fetchUser is an asynchronous action created with createAsyncThunk. logout can be dispatched directly, while fetchUser handles async logic.
+
+15. Q: If you wanted to display the user's name in a component, assuming it's stored in state.user.data.name, how would you do this using useSelector?
+    A:
+
+    ```javascript
+    const userName = useSelector((state) => state.user.data?.name);
+    ```
+
+16. Q: How would you conditionally render a loading spinner while the user data is being fetched?
+    A:
+
+    ```javascript
+    const userStatus = useSelector((state) => state.user.status);
+    if (userStatus === "loading") {
+      return <LoadingSpinner />;
+    }
+    ```
+
+17. Q: In the userSlice, what's the purpose of having both `reducers` and `extraReducers`?
+    A: In the userSlice, `reducers` is for synchronous actions (like logout), while `extraReducers` handles async action states (like the different states of fetchUser).
+
+18. Q: How would you handle an error that occurred during the fetchUser action in your component?
+    A:
+
+    ```javascript
+    const userError = useSelector((state) => state.user.error);
+    if (userError) {
+      return <ErrorMessage message={userError} />;
+    }
+    ```
+
+19. Q: If you wanted to prevent multiple unnecessary fetches of user data, how could you modify the component and/or the slice to achieve this?
+    A:
+
+    ```javascript
+    useEffect(() => {
+      if (status === "idle") {
+        dispatch(fetchUser(userId));
+      }
+    }, [status, userId, dispatch]);
+    ```
+
+20. Q: How can you combine multiple reducers when setting up the Redux store?
+    A: You can combine multiple reducers by passing an object to the `reducer` key in `configureStore`, where each key-value pair represents a slice of state and its corresponding reducer:
+    ```javascript
+    export const store = configureStore({
+      reducer: {
+        counter: counterReducer,
+        user: userReducer,
+        posts: postsReducer,
+      },
+    });
+    ```
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -861,13 +1571,13 @@ code {
 }
 
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App2";
+import reportWebVitals from "./reportWebVitals";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
@@ -1062,6 +1772,7 @@ export default function PermanentDrawerLeft() {
     </Drawer>
   );
 }
+
 
 const reportWebVitals = onPerfEntry => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
