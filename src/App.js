@@ -7,6 +7,7 @@ import { store } from "./store/store";
 import Counter from "./components/usestatecounterbeautified";
 import MovieList from "./components/MovieList";
 
+
 function App() {
   return (
     <Provider store={store}>

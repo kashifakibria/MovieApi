@@ -7,43 +7,47 @@ import Box from "@mui/material/Box";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 
+
 export default function ButtonAppBar() {
   return (
     <AppBar
       position="fixed"
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 ,backgroundColor:'#212121',}}
+      
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Box
           component="img"
           sx={{
-            height: 60, // Increased from 64
+            height: 50, // Increased from 64
             width: "auto",
-            maxHeight: { xs: 50, sm: 60, md: 70 }, // Adjusted for different screen sizes
+            maxHeight: { xs: 150, sm: 80, md: 70 }, // Adjusted for different screen sizes
             maxWidth: { xs: 160, sm: 200, md: 240 }, // Adjusted for different screen sizes
             marginLeft: 2,
-            marginY: 1, // Added vertical margin
+            marginY: 2, // Added vertical margin
+            
           }}
           alt="Filmpire logo"
-          src="/images/Academix-logo.png"
+          src="/images/Movie.jpg"
         />
 
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            //backgroundColor: "rgba(255, 255, 255, 0.15)",
+            backgroundColor:"white",
             borderRadius: "4px",
             padding: "2px 8px",
             width: "40%",
           }}
         >
-          <SearchIcon sx={{ color: "white", mr: 1 }} />
+          <SearchIcon sx={{ color: "black", mr: 1 }} />
           <InputBase
             placeholder="Search for a Movie..."
             sx={{
-              color: "white",
-              "& ::placeholder": { color: "white", opacity: 0.7 },
+              color: "black",
+              "& ::placeholder": { color: "black", opacity: 0.7 },
               flexGrow: 1,
             }}
           />
@@ -53,8 +57,8 @@ export default function ButtonAppBar() {
           color="inherit"
           startIcon={<PersonIcon />}
           sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+            backgroundColor: "red",
+            "&:hover": { backgroundColor: "black" },
           }}
         >
           LOGIN

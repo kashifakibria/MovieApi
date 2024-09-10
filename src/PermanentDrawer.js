@@ -12,46 +12,54 @@ import Divider from "@mui/material/Divider";
 // Import necessary icons
 import MovieIcon from "@mui/icons-material/Movie";
 import StarIcon from "@mui/icons-material/Star";
-import UpcomingIcon from "@mui/icons-material/Upcoming";
-import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
+//import UpcomingIcon from "@mui/icons-material/Upcoming";
+//import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import TheatersIcon from "@mui/icons-material/Theaters";
+//import TheatersIcon from "@mui/icons-material/Theaters";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import ChildCareIcon from "@mui/icons-material/ChildCare";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
+//import ChildCareIcon from "@mui/icons-material/ChildCare";
+//import PsychologyIcon from "@mui/icons-material/Psychology";
+//import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import BloodtypeIcon from "@mui/icons-material/Bloodtype";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import HandymanIcon from '@mui/icons-material/Handyman';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import DownhillSkiingIcon from '@mui/icons-material/DownhillSkiing';
+import MovieFilterIcon from '@mui/icons-material/MovieFilter';
+import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
+import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
+import BalanceIcon from '@mui/icons-material/Balance';
+import EmojiNatureIcon from '@mui/icons-material/EmojiNature';
 
 const drawerWidth = 240;
 
 const categories = [
   { name: "Popular", icon: <MovieIcon /> },
   { name: "Top Rated", icon: <StarIcon /> },
-  { name: "Upcoming", icon: <UpcomingIcon /> },
+  { name: "Upcoming", icon: <MovieFilterIcon /> },
 ];
 
 const genres = [
   { name: "Action", icon: <DirectionsRunIcon /> },
-  { name: "Adventure", icon: <AutoFixHighIcon /> },
-  { name: "Animation", icon: <ChildCareIcon /> },
+  { name: "Adventure", icon: <DownhillSkiingIcon /> },
+  { name: "Animation", icon: <EmojiNatureIcon /> },
   { name: "Comedy", icon: <EmojiEmotionsIcon /> },
-  { name: "Crime", icon: <LocalMoviesIcon /> },
-  { name: "Documentary", icon: <TheatersIcon /> },
-  { name: "Drama", icon: <PsychologyIcon /> },
-  { name: "Family", icon: <ChildCareIcon /> },
+  { name: "Crime", icon: <HandymanIcon /> },
+  { name: "Documentary", icon: <VideoCameraFrontIcon /> },
+  { name: "Drama", icon: <TheaterComedyIcon /> },
+  { name: "Family", icon: <Diversity3Icon /> },
   { name: "Fantasy", icon: <AutoFixHighIcon /> },
-  { name: "History", icon: <HistoryEduIcon /> },
+  { name: "History", icon: <BalanceIcon /> },
   { name: "Horror", icon: <BloodtypeIcon /> },
   { name: "Music", icon: <MusicNoteIcon /> },
 ];
 
-const drawerBg = "#0d253f";
-const textColor = "#01b4e4";
-const hoverBg = "#01b4e4";
+const drawerBg = "#212121";
+const textColor = "#ffebee";
+const hoverBg = "#b71c1c";
 const hoverText = "#ffffff";
-const dividerColor = "#01b4e4";
+const dividerColor = "#b71c1c";
 
 export default function PermanentDrawerLeft() {
   return (
@@ -77,10 +85,10 @@ export default function PermanentDrawerLeft() {
           sx={{
             px: 2,
             py: 1,
-            fontFamily: '"Playwrite MX", Arial, sans-serif',
+            fontFamily: '"Cinzel", Arial, sans-serif',
             fontWeight: 600,
             fontSize: "20px",
-            color: "#90cea1",
+            color: "#b71c1c",
           }}
         >
           Categories
@@ -105,7 +113,7 @@ export default function PermanentDrawerLeft() {
                   primary={item.name}
                   sx={{
                     "& .MuiTypography-root": {
-                      fontFamily: '"Playwrite MX", Arial, sans-serif',
+                      fontFamily: '"Cinzel", Arial, sans-serif',
                       fontWeight: 400,
                     },
                   }}
@@ -120,10 +128,10 @@ export default function PermanentDrawerLeft() {
           sx={{
             px: 2,
             py: 1,
-            fontFamily: '"Playwrite MX", Arial, sans-serif',
+            fontFamily: '"Cinzel", Arial, sans-serif',
             fontWeight: 600,
             fontSize: "20px",
-            color: "#90cea1",
+            color: "#b71c1c",
           }}
         >
           Genres
@@ -148,7 +156,7 @@ export default function PermanentDrawerLeft() {
                   primary={item.name}
                   sx={{
                     "& .MuiTypography-root": {
-                      fontFamily: '"Playwrite MX", Arial, sans-serif',
+                      fontFamily: '"Cinzel", Arial, sans-serif',
                       fontWeight: 400,
                     },
                   }}
